@@ -91,6 +91,8 @@ int main(int argc, char **argv) {
                 f.sampled_ms=bd_mono_ms();
                 f.rpm=rpm;
                 f.kph=kph;
+                f.tpms_ms=0;
+                f.tpms_hpa[0]=f.tpms_hpa[1]=f.tpms_hpa[2]=f.tpms_hpa[3]=-1;
                 if (!speed_only) {
                     struct hud_telemetry sample = { f.sampled_ms, source,
                         rpm >= 0 ? HUD_SAMPLE_RPM : 0, rpm >= 0 ? (unsigned)rpm : 0, 0 };
