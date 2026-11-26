@@ -16,6 +16,12 @@ int main(void) {
     assert(!tpms_decode(over, sizeof over, hpa));
     const unsigned char sentinel[] = {0x09,0xc4,0xff,0xff,0x0a,0x28,0x0a,0x3c};
     assert(!tpms_decode(sentinel, sizeof sentinel, hpa));
+    int keep[4] = {1000,1001,1002,1003};
+    const unsigned char late_fail[] = {0x09,0xc4,0x09,0xd6,0xff,0xff,0x0a,0x3c};
+    assert(!tpms_decode(late_fail, sizeof late_fail, keep));
+    assert(keep[0]==1000 && keep[1]==1001 && keep[2]==1002 && keep[3]==1003);
+    assert(!tpms_decode(sentinel, sizeof sentinel, keep));
+    assert(keep[0]==1000 && keep[1]==1001 && keep[2]==1002 && keep[3]==1003);
     assert(!tpms_decode(ok, 7, hpa));
     assert(!tpms_decode(NULL, 8, hpa));
     assert(!tpms_decode(ok, 8, NULL));
