@@ -131,6 +131,20 @@ class DriveAppsTest(unittest.TestCase):
             self.assertEqual((rpm,kph), (6250,100))
             self.assertEqual((tpms_ms, tpms), (0, [-1,-1,-1,-1]))
 
+    def test_shift_worker_reads_tpms_with_rdc_flag(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as listener:
+            listener.bind(("127.0.0.1", 0))
+            listener.settimeout(2)
+            self.run_worker("shift-deck", ["--rdc", "--cycles", "1", "--udp-port", str(listener.getsockname()[1])],
+                            [("010c", ["410c61a8"]), ("010d", ["410d64"]),
+                             ("220000", ["62000009c409d60a280a3c"])],
+                            targets=["12", "12", "00"])
+            sampled_ms, rpm, kph, tpms_ms, *tpms = struct.unpack("=QiiQiiii", listener.recv(64))
+            self.assertGreater(sampled_ms, 0)
+            self.assertEqual((rpm,kph), (6250,100))
+            self.assertGreater(tpms_ms, 0)
+            self.assertEqual(tpms, [2500,2518,2600,2620])
+
 
     def test_shift_worker_shares_rpm_with_hud(self):
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as hud, \
